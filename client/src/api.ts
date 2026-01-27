@@ -1,5 +1,8 @@
 import type { NewGameResponse, SubmitHandRequest, SubmitHandResponse, SuggestHandResponse } from './types';
 
+const API_BASE = (import.meta.env.VITE_API_BASE ?? '').replace(/\/$/, '');
+const apiUrl = (path: string) => `${API_BASE}${path}`;
+
 async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     headers: {
@@ -24,18 +27,18 @@ async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export function newGame(): Promise<NewGameResponse> {
-  return jsonFetch<NewGameResponse>('/api/new-game', { method: 'POST' });
+  return jsonFetch<NewGameResponse>(apiUrl('/api/new-game'), { method: 'POST' });
 }
 
 export function submitHand(body: SubmitHandRequest): Promise<SubmitHandResponse> {
-  return jsonFetch<SubmitHandResponse>('/api/submit-hand', {
+  return jsonFetch<SubmitHandResponse>(apiUrl('/api/submit-hand'), {
     method: 'POST',
     body: JSON.stringify(body)
   });
 }
 
 export function suggestHand(gameId: string): Promise<SuggestHandResponse> {
-  return jsonFetch<SuggestHandResponse>('/api/suggest-hand', {
+  return jsonFetch<SuggestHandResponse>(apiUrl('/api/suggest-hand'), {
     method: 'POST',
     body: JSON.stringify({ gameId })
   });

@@ -122,7 +122,7 @@ export default function App() {
       return;
     }
     setShowOutcomeEffect(true);
-    const timer = window.setTimeout(() => setShowOutcomeEffect(false), 7000);
+    const timer = window.setTimeout(() => setShowOutcomeEffect(false), 4000);
     return () => window.clearTimeout(timer);
   }, [result, playerScoop]);
 
@@ -276,6 +276,9 @@ export default function App() {
   }
 
   useEffect(() => {
+    const selectedFull = zones[selectedHand].length >= capacityFor(selectedHand);
+    if (!selectedFull) return;
+
     const nextTarget =
       zones.back.length < capacityFor('back')
         ? 'back'

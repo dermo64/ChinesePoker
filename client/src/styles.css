@@ -334,13 +334,16 @@ button:disabled {
 .showdown-effects {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 999;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding-top: 80px;
   background: rgba(11, 18, 32, 0.65);
   pointer-events: none;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
 }
 
 .showdown-effects.foul {
@@ -379,12 +382,15 @@ button:disabled {
 
 .emoji {
   position: absolute;
-  top: -10%;
-  font-size: 22px;
+  top: -8vh;
+  font-size: 32px;
+  line-height: 1;
+  z-index: 1;
+  opacity: 1;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
   animation-name: emojiFall;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
-  opacity: 0.9;
   filter: drop-shadow(0 4px 6px rgba(15, 23, 42, 0.3));
 }
 
@@ -394,14 +400,14 @@ button:disabled {
 
 @keyframes emojiFall {
   0% {
-    transform: translateY(-20%) rotate(0deg);
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
     opacity: 0;
   }
   10% {
     opacity: 1;
   }
   100% {
-    transform: translateY(120%) rotate(140deg);
+    transform: translate3d(0, 110vh, 0) rotate(140deg);
     opacity: 0;
   }
 }

@@ -1,0 +1,16 @@
+{
+  "name": "chinese-poker",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,green \"npm run dev --workspace server\" \"npm run dev --workspace client\"",
+    "build": "npm run build --workspace server && npm run build --workspace client",
+    "test": "npm run test --workspace server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

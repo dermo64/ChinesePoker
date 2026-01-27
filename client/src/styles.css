@@ -154,7 +154,7 @@ button:disabled {
 }
 
 .zone-hand {
-  padding: 8px;
+  padding: 8px 10px;
 }
 
 .zone-hand .zone-header {
@@ -228,7 +228,7 @@ button:disabled {
 
 .zone-hand .zone-cards {
   min-height: 74px;
-  padding: 4px 6px 2px;
+  padding: 0;
   gap: 6px;
 }
 

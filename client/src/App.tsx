@@ -97,6 +97,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [revealStep, setRevealStep] = useState(0);
   const submitRef = useRef<HTMLDivElement | null>(null);
+  const [showOutcomeEffect, setShowOutcomeEffect] = useState(false);
 
   const suggestionEvText = useMemo(() => {
     if (!suggestion) return null;
@@ -114,6 +115,16 @@ export default function App() {
     if (!result || result.userFoul) return false;
     return result.perHand.front === 1 && result.perHand.middle === 1 && result.perHand.back === 1;
   }, [result]);
+
+  useEffect(() => {
+    if (!result || (!result.userFoul && !playerScoop)) {
+      setShowOutcomeEffect(false);
+      return;
+    }
+    setShowOutcomeEffect(true);
+    const timer = window.setTimeout(() => setShowOutcomeEffect(false), 7000);
+    return () => window.clearTimeout(timer);
+  }, [result, playerScoop]);
 
   const canSubmit = zones.front.length === 3 && zones.middle.length === 5 && zones.back.length === 5 && !!gameId;
 
@@ -331,31 +342,32 @@ export default function App() {
 
       {error && <div className="alert alert-error">{error}</div>}
 
+      {showOutcomeEffect && result && (
+        <div className={`showdown-effects ${result.userFoul ? 'foul' : 'scoop'}`}>
+          <div className="effect-banner">{result.userFoul ? 'FOUL' : 'SCOOP!'}</div>
+          <div className="emoji-rain">
+            {Array.from({ length: 18 }).map((_, idx) => (
+              <span
+                key={`emoji-${idx}`}
+                className="emoji"
+                style={{
+                  left: `${(idx * 5.5 + 3) % 100}%`,
+                  animationDelay: `${(idx % 6) * 0.25}s`,
+                  animationDuration: `${3 + (idx % 5) * 0.35}s`
+                }}
+              >
+                {result.userFoul ? '💩' : '🍨'}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="board">
         {result && (
           <section className="showdown">
             <h2>Showdown</h2>
             {result.userFoul && <div className="showdown-banner foul">Foul hand — automatic loss</div>}
-            {(result.userFoul || playerScoop) && (
-              <div className={`showdown-effects ${result.userFoul ? 'foul' : 'scoop'}`}>
-                <div className="effect-banner">{result.userFoul ? 'FOUL' : 'SCOOP!'}</div>
-                <div className="emoji-rain">
-                  {Array.from({ length: 14 }).map((_, idx) => (
-                    <span
-                      key={`emoji-${idx}`}
-                      className="emoji"
-                      style={{
-                        left: `${(idx * 7 + 5) % 100}%`,
-                        animationDelay: `${(idx % 6) * 0.25}s`,
-                        animationDuration: `${3 + (idx % 5) * 0.35}s`
-                      }}
-                    >
-                      {result.userFoul ? '💩' : '🍨'}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
             {(['front', 'middle', 'back'] as const).map((hand) => {
               const revealed = !!result?.userFoul || isRevealed(hand);
               const outcome = result.perHand[hand];
@@ -418,7 +430,7 @@ export default function App() {
                   }}
                   headerRight={
                     <button className="btn-secondary" onClick={onSortHand} disabled={busy || zones.hand.length === 0}>
-                      {handSortMode === 'suit_rank' ? 'Sort by value' : 'Sort by suit'}
+                      {handSortMode === 'suit_rank' ? 'Sort by suit' : 'Sort by value'}
                     </button>
                   }
                   highlight={dragState?.from !== 'hand'}

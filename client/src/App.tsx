@@ -110,6 +110,11 @@ export default function App() {
     return `EV: ${result.userEv.toFixed(2)}`;
   }, [result]);
 
+  const playerScoop = useMemo(() => {
+    if (!result || result.userFoul) return false;
+    return result.perHand.front === 1 && result.perHand.middle === 1 && result.perHand.back === 1;
+  }, [result]);
+
   const canSubmit = zones.front.length === 3 && zones.middle.length === 5 && zones.back.length === 5 && !!gameId;
 
   async function onNewGame() {
@@ -331,6 +336,26 @@ export default function App() {
           <section className="showdown">
             <h2>Showdown</h2>
             {result.userFoul && <div className="showdown-banner foul">Foul hand — automatic loss</div>}
+            {(result.userFoul || playerScoop) && (
+              <div className={`showdown-effects ${result.userFoul ? 'foul' : 'scoop'}`}>
+                <div className="effect-banner">{result.userFoul ? 'FOUL' : 'SCOOP!'}</div>
+                <div className="emoji-rain">
+                  {Array.from({ length: 14 }).map((_, idx) => (
+                    <span
+                      key={`emoji-${idx}`}
+                      className="emoji"
+                      style={{
+                        left: `${(idx * 7 + 5) % 100}%`,
+                        animationDelay: `${(idx % 6) * 0.25}s`,
+                        animationDuration: `${3 + (idx % 5) * 0.35}s`
+                      }}
+                    >
+                      {result.userFoul ? '💩' : '🍨'}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
             {(['front', 'middle', 'back'] as const).map((hand) => {
               const revealed = !!result?.userFoul || isRevealed(hand);
               const outcome = result.perHand[hand];
@@ -393,7 +418,7 @@ export default function App() {
                   }}
                   headerRight={
                     <button className="btn-secondary" onClick={onSortHand} disabled={busy || zones.hand.length === 0}>
-                      Sort
+                      {handSortMode === 'suit_rank' ? 'Sort by value' : 'Sort by suit'}
                     </button>
                   }
                   highlight={dragState?.from !== 'hand'}

@@ -331,6 +331,76 @@ button:disabled {
   border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
+.showdown-effects {
+  position: relative;
+  padding: 14px 12px 22px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.showdown-effects.foul {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.25);
+}
+
+.showdown-effects.scoop {
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+}
+
+.effect-banner {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #e2e8f0;
+  text-align: center;
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.4);
+}
+
+.showdown-effects.foul .effect-banner {
+  color: #fecaca;
+}
+
+.showdown-effects.scoop .effect-banner {
+  color: #bae6fd;
+}
+
+.emoji-rain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.emoji {
+  position: absolute;
+  top: -10%;
+  font-size: 22px;
+  animation-name: emojiFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  opacity: 0.9;
+  filter: drop-shadow(0 4px 6px rgba(15, 23, 42, 0.3));
+}
+
+.showdown-effects.scoop .emoji {
+  font-size: 20px;
+}
+
+@keyframes emojiFall {
+  0% {
+    transform: translateY(-20%) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(120%) rotate(140deg);
+    opacity: 0;
+  }
+}
+
 .showdown-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);

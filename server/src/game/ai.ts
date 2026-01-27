@@ -6,13 +6,13 @@ import { scoreRound, type Arrangement } from './scoring.js';
 import { log } from '../util/log.js';
 
 export const AI_CONSTANTS = {
-  NUM_CANDIDATES: Number(process.env.NUM_CANDIDATES ?? 900),
-  NUM_ROLLOUTS: Number(process.env.NUM_ROLLOUTS ?? 600),
-  TIME_BUDGET_MS: Number(process.env.TIME_BUDGET_MS ?? 12000),
+  NUM_CANDIDATES: Number(process.env.NUM_CANDIDATES ?? 800),
+  NUM_ROLLOUTS: Number(process.env.NUM_ROLLOUTS ?? 520),
+  TIME_BUDGET_MS: Number(process.env.TIME_BUDGET_MS ?? 10500),
   OPPONENT_HEURISTIC_TRIES: Number(process.env.OPPONENT_HEURISTIC_TRIES ?? 40),
   OPPONENT_MODEL: String(process.env.OPPONENT_MODEL ?? 'random_legal'),
   LOCAL_SEARCH_STEPS: Number(process.env.LOCAL_SEARCH_STEPS ?? 4),
-  PRESELECT_TOP_K: Number(process.env.PRESELECT_TOP_K ?? 90),
+  PRESELECT_TOP_K: Number(process.env.PRESELECT_TOP_K ?? 75),
   EVAL_NUM_ROLLOUTS: Number(process.env.EVAL_NUM_ROLLOUTS ?? 300),
   EVAL_TIME_BUDGET_MS: Number(process.env.EVAL_TIME_BUDGET_MS ?? 1000)
 };

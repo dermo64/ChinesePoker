@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type React from 'react';
 import { newGame, submitHand, suggestHand } from './api';
 import type { Card, SubmitHandResponse, SuggestHandResponse } from './types';
@@ -89,6 +89,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [revealStep, setRevealStep] = useState(0);
+  const submitRef = useRef<HTMLDivElement | null>(null);
 
   const suggestionEvText = useMemo(() => {
     if (!suggestion) return null;
@@ -263,6 +264,13 @@ export default function App() {
     }
   }, [selectedHand, zones, setSelectedHand]);
 
+  useEffect(() => {
+    if (result) return;
+    if (zones.front.length === 3 && zones.middle.length === 5 && zones.back.length === 5) {
+      submitRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [zones.front.length, zones.middle.length, zones.back.length, result]);
+
   async function onSubmit() {
     if (!gameId) return;
     setBusy(true);
@@ -432,7 +440,7 @@ export default function App() {
               />
             </div>
 
-            <div className="submit-row">
+            <div className="submit-row" ref={submitRef}>
               <div className="submit-panel">
                 <button onClick={onSubmit} disabled={busy || !canSubmit}>
                   Submit
@@ -440,15 +448,11 @@ export default function App() {
               </div>
             </div>
 
-            <div className="hint">
-              Drag cards from Your Cards into Front/Middle/Back. You can reorder Your Cards by dragging within that area.
-            </div>
           </>
         )}
       </div>
 
-      <section className="results">
-        <h2>Computer Suggestion</h2>
+      <section className="results suggestion-panel">
         <div>
           <div className="header-actions" style={{ justifyContent: 'flex-start', marginBottom: 10 }}>
             <button onClick={onAskComputer} disabled={!gameId || suggestBusy}>

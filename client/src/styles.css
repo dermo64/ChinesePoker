@@ -154,7 +154,7 @@ button:disabled {
 }
 
 .zone-hand {
-  padding: 10px;
+  padding: 8px;
 }
 
 .zone-hand .zone-header {
@@ -227,8 +227,9 @@ button:disabled {
 }
 
 .zone-hand .zone-cards {
-  min-height: 76px;
-  padding: 4px 10px 2px;
+  min-height: 74px;
+  padding: 4px 6px 2px;
+  gap: 6px;
 }
 
 .zone-compact .zone-cards {
@@ -522,6 +523,22 @@ button:disabled {
   background: #111c33;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
+}
+
+.suggestion-panel {
+  padding: 10px 12px;
+}
+
+.suggestion-panel .results-grid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.suggestion-panel .result-col {
+  padding: 10px;
+}
+
+.suggestion-panel h3 {
+  font-size: 13px;
 }
 
 .results h2 {

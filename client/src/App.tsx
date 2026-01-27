@@ -60,6 +60,13 @@ function compareCardRankOnly(a: Card, b: Card): number {
   return as - bs;
 }
 
+function sortZoneCards(zone: ZoneId, cards: Card[]): Card[] {
+  if (zone === 'front' || zone === 'middle' || zone === 'back') {
+    return [...cards].sort(compareCardRankOnly);
+  }
+  return cards;
+}
+
 function reorder<T>(arr: T[], fromIndex: number, toIndex: number): T[] {
   if (fromIndex === toIndex) return arr;
   const a = [...arr];
@@ -201,6 +208,7 @@ export default function App() {
 
       // Reorder within same zone.
       if (from === to) {
+        if (from !== 'hand') return prev;
         if (toIndex === undefined) return prev;
         if (fromIndex < 0) return prev;
         return {
@@ -220,8 +228,8 @@ export default function App() {
 
       return {
         ...prev,
-        [from]: nextFrom,
-        [to]: nextTo
+        [from]: sortZoneCards(from, nextFrom),
+        [to]: sortZoneCards(to, nextTo)
       } as Zones;
     });
 
@@ -248,7 +256,7 @@ export default function App() {
       if (prev[selectedHand].length >= cap) return prev;
 
       const nextHand = removeOnce(prev.hand, card);
-      const nextTarget = addIfCapacity(prev[selectedHand], card, cap);
+      const nextTarget = sortZoneCards(selectedHand, addIfCapacity(prev[selectedHand], card, cap));
       return {
         ...prev,
         hand: nextHand,
@@ -370,27 +378,29 @@ export default function App() {
 
         {!result && (
           <>
-            <div className="hand-row">
-              <Zone
-                title="Your Cards"
-                zoneId="hand"
-                cards={zones.hand}
-                capacity={13}
-                onDropCard={onDropCard}
-                onDragStartCard={onDragStartCard}
-                enableIndexedDrop
-                onCardClick={(card: Card) => {
-                  playCardIntoSelected(card);
-                }}
-                headerRight={
-                  <button className="btn-secondary" onClick={onSortHand} disabled={busy || zones.hand.length === 0}>
-                    Sort
-                  </button>
-                }
-                highlight={dragState?.from !== 'hand'}
-                className="zone-hand baize-zone"
-              />
-            </div>
+            {zones.hand.length > 0 && (
+              <div className="hand-row">
+                <Zone
+                  title="Your Cards"
+                  zoneId="hand"
+                  cards={zones.hand}
+                  capacity={13}
+                  onDropCard={onDropCard}
+                  onDragStartCard={onDragStartCard}
+                  enableIndexedDrop
+                  onCardClick={(card: Card) => {
+                    playCardIntoSelected(card);
+                  }}
+                  headerRight={
+                    <button className="btn-secondary" onClick={onSortHand} disabled={busy || zones.hand.length === 0}>
+                      Sort
+                    </button>
+                  }
+                  highlight={dragState?.from !== 'hand'}
+                  className="zone-hand baize-zone"
+                />
+              </div>
+            )}
 
             <div className="zones">
               <Zone

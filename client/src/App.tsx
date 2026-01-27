@@ -252,12 +252,6 @@ export default function App() {
     setDragState(null);
   }
 
-  function nextHandAfter(hand: Exclude<ZoneId, 'hand'>): Exclude<ZoneId, 'hand'> {
-    if (hand === 'back') return 'middle';
-    if (hand === 'middle') return 'front';
-    return 'front';
-  }
-
   function capacityFor(hand: Exclude<ZoneId, 'hand'>): number {
     return hand === 'front' ? 3 : 5;
   }
@@ -282,11 +276,18 @@ export default function App() {
   }
 
   useEffect(() => {
-    const cap = capacityFor(selectedHand);
-    if (zones[selectedHand].length >= cap) {
-      setSelectedHand(nextHandAfter(selectedHand));
+    const nextTarget =
+      zones.back.length < capacityFor('back')
+        ? 'back'
+        : zones.middle.length < capacityFor('middle')
+          ? 'middle'
+          : zones.front.length < capacityFor('front')
+            ? 'front'
+            : selectedHand;
+    if (nextTarget !== selectedHand) {
+      setSelectedHand(nextTarget);
     }
-  }, [selectedHand, zones, setSelectedHand]);
+  }, [selectedHand, zones.back.length, zones.middle.length, zones.front.length]);
 
   useEffect(() => {
     if (result) return;

@@ -332,12 +332,15 @@ button:disabled {
 }
 
 .showdown-effects {
-  position: relative;
-  padding: 14px 12px 22px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  overflow: hidden;
-  background: rgba(15, 23, 42, 0.55);
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 80px;
+  background: rgba(11, 18, 32, 0.65);
+  pointer-events: none;
 }
 
 .showdown-effects.foul {
@@ -356,6 +359,8 @@ button:disabled {
   color: #e2e8f0;
   text-align: center;
   text-shadow: 0 0 18px rgba(255, 255, 255, 0.4);
+  position: relative;
+  z-index: 2;
 }
 
 .showdown-effects.foul .effect-banner {

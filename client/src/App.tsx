@@ -137,8 +137,15 @@ export default function App() {
     setSelectedHand('back');
     setSuggestion(null);
     setSuggestError(null);
+    const start = performance.now();
+    const minDealDelayMs = 350;
     try {
       const res = await newGame();
+      const elapsed = performance.now() - start;
+      const remaining = Math.max(0, minDealDelayMs - elapsed);
+      if (remaining > 0) {
+        await new Promise<void>((resolve) => window.setTimeout(resolve, remaining));
+      }
       setGameId(res.gameId);
       setZones({ hand: res.userCards, front: [], middle: [], back: [] });
     } catch (e) {
@@ -241,11 +248,15 @@ export default function App() {
         toIndex === undefined
           ? addIfCapacity(prev[to], card, caps[to])
           : insertAtIndex(prev[to], card, toIndex);
+      const nextToSorted =
+        to === 'hand'
+          ? [...nextTo].sort(handSortMode === 'suit_rank' ? compareCardSuitRank : compareCardRankOnly)
+          : nextTo;
 
       return {
         ...prev,
         [from]: sortZoneCards(from, nextFrom),
-        [to]: sortZoneCards(to, nextTo)
+        [to]: sortZoneCards(to, nextToSorted)
       } as Zones;
     });
 

@@ -1,0 +1,63 @@
+name: terraform-poc
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "infra/**"
+      - ".github/workflows/terraform-poc.yml"
+  push:
+    branches: [ "main" ]
+    paths:
+      - "infra/**"
+      - ".github/workflows/terraform-poc.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: terraform-poc
+  cancel-in-progress: false
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/envs/poc
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::936776442537:role/github-actions-terraform-poc
+          aws-region: eu-west-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5"
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform plan
+        if: github.event_name == 'pull_request'
+        env:
+          TF_VAR_rudder_workspace_token: ${{ secrets.RUDDER_WORKSPACE_TOKEN }}
+        run: terraform plan -input=false
+
+      - name: Terraform apply
+        if: github.event_name == 'push'
+        env:
+          TF_VAR_rudder_workspace_token: ${{ secrets.RUDDER_WORKSPACE_TOKEN }}
+        run: terraform apply -input=false -auto-approve

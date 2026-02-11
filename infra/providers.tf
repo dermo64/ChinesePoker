@@ -1,3 +1,0 @@
-// Placeholder providers.
-// provider "example" {
-// }

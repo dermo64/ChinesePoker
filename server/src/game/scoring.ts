@@ -21,7 +21,7 @@ export type RoundInput = {
 };
 
 function compareFront(a: HandValue, b: HandValue): number {
-  if (a.size !== 3 || b.size !== 3) throw new Error('compareFront expects (3,3)');
+  if (a.size !== 3 || b.size !== 3) throw new Error('compareFront  expects (3,3)');
   if (a.category !== b.category) return a.category > b.category ? 1 : -1;
   return compareLex(a.tiebreak, b.tiebreak);
 }

@@ -578,6 +578,9 @@ export default function App() {
                 <button onClick={onSubmit} disabled={busy || !canSubmit}>
                   Submit
                 </button>
+                <button className="btn-secondary scoring-info-btn" onClick={() => setShowRoyaltiesInfo(true)}>
+                  Scoring info
+                </button>
               </div>
             </div>
 
@@ -587,12 +590,9 @@ export default function App() {
 
       <section className="results suggestion-panel">
         <div>
-          <div className="header-actions suggestion-actions">
+          <div className="header-actions">
             <button onClick={onAskComputer} disabled={!gameId || suggestBusy}>
               {suggestBusy ? 'Thinking…' : 'Ask Computer'}
-            </button>
-            <button className="btn-secondary" onClick={() => setShowRoyaltiesInfo(true)}>
-              Royalties info
             </button>
           </div>
           {suggestError && <div className="alert alert-error">{suggestError}</div>}

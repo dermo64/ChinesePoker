@@ -19,7 +19,7 @@ resource "aws_vpc" "this" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
-  tags = { Name = "${var.name}-vpc" }
+  tags                 = { Name = "${var.name}-vpc" }
 }
 
 resource "aws_internet_gateway" "this" {
@@ -32,7 +32,7 @@ resource "aws_subnet" "public" {
   cidr_block              = var.public_subnet_cidr
   availability_zone       = data.aws_availability_zones.available.names[0]
   map_public_ip_on_launch = true
-  tags = { Name = "${var.name}-public-subnet" }
+  tags                    = { Name = "${var.name}-public-subnet" }
 }
 
 resource "aws_route_table" "public" {
@@ -85,7 +85,7 @@ resource "aws_security_group" "rudder" {
 # --- IAM role for EC2: SSM + S3 writes ---
 data "aws_iam_policy_document" "ec2_assume_role" {
   statement {
-    effect = "Allow"
+    effect  = "Allow"
     actions = ["sts:AssumeRole"]
     principals {
       type        = "Service"
@@ -107,9 +107,9 @@ resource "aws_iam_role_policy_attachment" "ssm" {
 
 data "aws_iam_policy_document" "s3_write" {
   statement {
-    sid     = "ListBucketPrefix"
-    effect  = "Allow"
-    actions = ["s3:ListBucket"]
+    sid       = "ListBucketPrefix"
+    effect    = "Allow"
+    actions   = ["s3:ListBucket"]
     resources = ["arn:aws:s3:::${var.events_bucket}"]
     condition {
       test     = "StringLike"
@@ -119,16 +119,16 @@ data "aws_iam_policy_document" "s3_write" {
   }
 
   statement {
-    sid     = "WriteObjects"
-    effect  = "Allow"
-    actions = ["s3:PutObject", "s3:AbortMultipartUpload"]
+    sid       = "WriteObjects"
+    effect    = "Allow"
+    actions   = ["s3:PutObject", "s3:AbortMultipartUpload"]
     resources = ["arn:aws:s3:::${var.events_bucket}/${var.events_prefix}*"]
   }
 
   statement {
-    sid     = "GetBucketLocation"
-    effect  = "Allow"
-    actions = ["s3:GetBucketLocation"]
+    sid       = "GetBucketLocation"
+    effect    = "Allow"
+    actions   = ["s3:GetBucketLocation"]
     resources = ["arn:aws:s3:::${var.events_bucket}"]
   }
 }

@@ -420,6 +420,9 @@ export default function App() {
                   <div>Middle: {result.perHand.middle}</div>
                   <div>Back: {result.perHand.back}</div>
                   <div>Scoop: {result.scoop ? 'Yes' : 'No'}</div>
+                  <div>Royalties (You): {result.royalties.user}</div>
+                  <div>Royalties (CPU): {result.royalties.computer}</div>
+                  <div>Royalties Net: {result.royalties.net}</div>
                   <div className="showdown-score-total">Total: {result.total}</div>
                 </div>
                 <div className="showdown-score-explanation">{result.explanation}</div>

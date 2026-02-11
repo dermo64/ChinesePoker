@@ -13,8 +13,8 @@ export const AI_CONSTANTS = {
   OPPONENT_MODEL: String(process.env.OPPONENT_MODEL ?? 'random_legal'),
   LOCAL_SEARCH_STEPS: Number(process.env.LOCAL_SEARCH_STEPS ?? 4),
   PRESELECT_TOP_K: Number(process.env.PRESELECT_TOP_K ?? 75),
-  EVAL_NUM_ROLLOUTS: Number(process.env.EVAL_NUM_ROLLOUTS ?? 300),
-  EVAL_TIME_BUDGET_MS: Number(process.env.EVAL_TIME_BUDGET_MS ?? 1000)
+  EVAL_NUM_ROLLOUTS: Number(process.env.EVAL_NUM_ROLLOUTS ?? 600),
+  EVAL_TIME_BUDGET_MS: Number(process.env.EVAL_TIME_BUDGET_MS ?? 1500)
 };
 
 type Eval3 = (cards: string[]) => ReturnType<typeof evaluate3>;
@@ -240,14 +240,14 @@ function randomLegalPartitionWithEval(cards13: string[], eval3: Eval3, eval5: Ev
   }
 }
 
-function sampleOpponent(remaining: string[], eval3: Eval3, eval5: Eval5): {
+function sampleOpponent(remaining: string[], eval3: Eval3, eval5: Eval5, forceHeuristic = false): {
   arrangement: Arrangement;
   front: ReturnType<typeof evaluate3>;
   middle: ReturnType<typeof evaluate5>;
   back: ReturnType<typeof evaluate5>;
 } {
   const opp13 = sample13(remaining);
-  if (AI_CONSTANTS.OPPONENT_MODEL === 'heuristic') {
+  if (forceHeuristic || AI_CONSTANTS.OPPONENT_MODEL === 'heuristic') {
     const oppArr = arrangeHeuristic(opp13, AI_CONSTANTS.OPPONENT_HEURISTIC_TRIES, eval3, eval5);
     const oppFront = eval3(oppArr.front);
     const oppMiddle = eval5(oppArr.middle);
@@ -265,13 +265,14 @@ async function preSampleOpponents(args: {
   eval5: Eval5;
   t0: number;
   timeBudgetMs: number;
+  forceHeuristic?: boolean;
 }): Promise<ReturnType<typeof sampleOpponent>[]> {
-  const { remaining, count, eval3, eval5, t0, timeBudgetMs } = args;
+  const { remaining, count, eval3, eval5, t0, timeBudgetMs, forceHeuristic } = args;
   const samples: ReturnType<typeof sampleOpponent>[] = [];
 
   for (let i = 0; i < count; i++) {
     if (nowMs() - t0 > timeBudgetMs) break;
-    samples.push(sampleOpponent(remaining, eval3, eval5));
+    samples.push(sampleOpponent(remaining, eval3, eval5, !!forceHeuristic));
     if (i % YIELD_EVERY === YIELD_EVERY - 1) await yieldToEventLoop();
   }
 
@@ -300,7 +301,8 @@ export async function estimateArrangementEv(knownCards13: string[], arrangement:
     eval3,
     eval5,
     t0,
-    timeBudgetMs: AI_CONSTANTS.EVAL_TIME_BUDGET_MS
+    timeBudgetMs: AI_CONSTANTS.EVAL_TIME_BUDGET_MS,
+    forceHeuristic: true
   });
 
   let sum = 0;

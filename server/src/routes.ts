@@ -170,6 +170,7 @@ router.post('/submit-hand', async (req: Request, res: Response) => {
     perHand: scored.perHand,
     total: scored.total,
     scoop: scored.scoop,
+    royalties: scored.royalties,
     explanation: scored.explanation
   });
 });

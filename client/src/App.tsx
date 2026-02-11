@@ -93,6 +93,7 @@ export default function App() {
   const [suggestion, setSuggestion] = useState<SuggestHandResponse | null>(null);
   const [suggestBusy, setSuggestBusy] = useState(false);
   const [suggestError, setSuggestError] = useState<string | null>(null);
+  const [showRoyaltiesInfo, setShowRoyaltiesInfo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [revealStep, setRevealStep] = useState(0);
@@ -388,11 +389,14 @@ export default function App() {
               const outcome = result.perHand[hand];
               const outcomeClass = outcome > 0 ? 'win' : outcome < 0 ? 'loss' : 'tie';
               const label = hand === 'back' ? 'Back' : hand === 'middle' ? 'Middle' : 'Front';
+              const userRoyalty = result.royalties.user[hand];
+              const computerRoyalty = result.royalties.computer[hand];
               return (
                 <div key={hand} className={`showdown-row baize-surface ${revealed ? 'revealed' : 'hidden'}`}>
                   <div className="showdown-side">
                     <div className="showdown-label">You</div>
                     {revealed && <div className="showdown-rank">{result.userHands[hand].rank}</div>}
+                    {revealed && userRoyalty > 0 && <div className="showdown-royalty">Roy +{userRoyalty}</div>}
                     <div className="showdown-cards">
                       {renderShowdownCards(result.userHands[hand].cards, revealed, `user-${hand}`, result.userFoul)}
                     </div>
@@ -404,6 +408,7 @@ export default function App() {
                   <div className="showdown-side">
                     <div className="showdown-label">Computer</div>
                     {revealed && <div className="showdown-rank">{result.computerHands[hand].rank}</div>}
+                    {revealed && computerRoyalty > 0 && <div className="showdown-royalty">Roy +{computerRoyalty}</div>}
                     <div className="showdown-cards">
                       {renderShowdownCards(result.computerHands[hand].cards, revealed, `cpu-${hand}`, result.userFoul)}
                     </div>
@@ -420,8 +425,8 @@ export default function App() {
                   <div>Middle: {result.perHand.middle}</div>
                   <div>Back: {result.perHand.back}</div>
                   <div>Scoop: {result.scoop ? 'Yes' : 'No'}</div>
-                  <div>Royalties (You): {result.royalties.user}</div>
-                  <div>Royalties (CPU): {result.royalties.computer}</div>
+                  <div>Royalties (You): {result.royalties.user.total}</div>
+                  <div>Royalties (CPU): {result.royalties.computer.total}</div>
                   <div>Royalties Net: {result.royalties.net}</div>
                   <div className="showdown-score-total">Total: {result.total}</div>
                 </div>
@@ -429,6 +434,69 @@ export default function App() {
               </div>
             )}
           </section>
+        )}
+
+        {showRoyaltiesInfo && (
+          <div className="modal-overlay" onClick={() => setShowRoyaltiesInfo(false)}>
+            <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Royalties Info</h3>
+                <button className="btn-secondary" onClick={() => setShowRoyaltiesInfo(false)}>
+                  Close
+                </button>
+              </div>
+              <div className="modal-body">
+                <table className="modal-table">
+                  <thead>
+                    <tr>
+                      <th>Hand</th>
+                      <th>Front (3)</th>
+                      <th>Middle (5)</th>
+                      <th>Back (5)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Trips</td>
+                      <td>+3</td>
+                      <td>—</td>
+                      <td>—</td>
+                    </tr>
+                    <tr>
+                      <td>Straight</td>
+                      <td>—</td>
+                      <td>+2</td>
+                      <td>—</td>
+                    </tr>
+                    <tr>
+                      <td>Flush</td>
+                      <td>—</td>
+                      <td>+4</td>
+                      <td>—</td>
+                    </tr>
+                    <tr>
+                      <td>Full House</td>
+                      <td>—</td>
+                      <td>+6</td>
+                      <td>+2</td>
+                    </tr>
+                    <tr>
+                      <td>Quads</td>
+                      <td>—</td>
+                      <td>+10</td>
+                      <td>+6</td>
+                    </tr>
+                    <tr>
+                      <td>Straight Flush</td>
+                      <td>—</td>
+                      <td>+15</td>
+                      <td>+10</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         )}
 
         {!result && (
@@ -519,9 +587,12 @@ export default function App() {
 
       <section className="results suggestion-panel">
         <div>
-          <div className="header-actions" style={{ justifyContent: 'flex-start', marginBottom: 10 }}>
+          <div className="header-actions suggestion-actions">
             <button onClick={onAskComputer} disabled={!gameId || suggestBusy}>
               {suggestBusy ? 'Thinking…' : 'Ask Computer'}
+            </button>
+            <button className="btn-secondary" onClick={() => setShowRoyaltiesInfo(true)}>
+              Royalties info
             </button>
           </div>
           {suggestError && <div className="alert alert-error">{suggestError}</div>}

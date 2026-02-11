@@ -36,6 +36,10 @@ export type SubmitHandResponse = {
   perHand: { front: number; middle: number; back: number };
   total: number;
   scoop: boolean;
-  royalties: { user: number; computer: number; net: number };
+  royalties: {
+    user: { front: number; middle: number; back: number; total: number };
+    computer: { front: number; middle: number; back: number; total: number };
+    net: number;
+  };
   explanation: string;
 };

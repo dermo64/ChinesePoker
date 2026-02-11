@@ -121,10 +121,19 @@ export function scoreRound(input: RoundInput) {
     total -= 3;
   }
 
-  const userRoyalties =
-    frontRoyalty(user.values.front) + middleRoyalty(user.values.middle) + backRoyalty(user.values.back);
+  const userRoyaltyByHand = {
+    front: frontRoyalty(user.values.front),
+    middle: middleRoyalty(user.values.middle),
+    back: backRoyalty(user.values.back)
+  };
+  const computerRoyaltyByHand = {
+    front: frontRoyalty(computer.values.front),
+    middle: middleRoyalty(computer.values.middle),
+    back: backRoyalty(computer.values.back)
+  };
+  const userRoyalties = userRoyaltyByHand.front + userRoyaltyByHand.middle + userRoyaltyByHand.back;
   const computerRoyalties =
-    frontRoyalty(computer.values.front) + middleRoyalty(computer.values.middle) + backRoyalty(computer.values.back);
+    computerRoyaltyByHand.front + computerRoyaltyByHand.middle + computerRoyaltyByHand.back;
   const royaltyNet = userRoyalties - computerRoyalties;
   total += royaltyNet;
 
@@ -144,8 +153,14 @@ export function scoreRound(input: RoundInput) {
     scoop,
     total,
     royalties: {
-      user: userRoyalties,
-      computer: computerRoyalties,
+      user: {
+        ...userRoyaltyByHand,
+        total: userRoyalties
+      },
+      computer: {
+        ...computerRoyaltyByHand,
+        total: computerRoyalties
+      },
       net: royaltyNet
     },
     explanation: explanationParts.join(' | ')

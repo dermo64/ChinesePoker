@@ -20,7 +20,7 @@ variable "public_subnet_cidr" {
 
 variable "instance_type" {
   type    = string
-  default = "t4g.nano"
+  default = "t4g.small"
 }
 
 variable "events_bucket" {

@@ -213,11 +213,25 @@ export default function App() {
       }
       setGameId(res.gameId);
       setZones({ hand: res.userCards, front: [], middle: [], back: [] });
+      const anonId = ensureRudderIdentity();
+      trackRudderEvent('new_game', {
+        gameId: res.gameId,
+        anonymousId: anonId ?? undefined
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
+  }
+
+  function onShowScoringInfo() {
+    const anonId = ensureRudderIdentity();
+    trackRudderEvent('scoring_info_opened', {
+      gameId: gameId ?? undefined,
+      anonymousId: anonId ?? undefined
+    });
+    setShowRoyaltiesInfo(true);
   }
 
   useEffect(() => {
@@ -254,6 +268,11 @@ export default function App() {
 
   async function onAskComputer() {
     if (!gameId) return;
+    const anonId = ensureRudderIdentity();
+    trackRudderEvent('ask_computer', {
+      gameId,
+      anonymousId: anonId ?? undefined
+    });
     setSuggestBusy(true);
     setSuggestError(null);
     try {
@@ -650,7 +669,7 @@ export default function App() {
                 <button onClick={onSubmit} disabled={busy || !canSubmit}>
                   Submit
                 </button>
-                <button className="btn-secondary scoring-info-btn" onClick={() => setShowRoyaltiesInfo(true)}>
+                <button className="btn-secondary scoring-info-btn" onClick={onShowScoringInfo}>
                   Scoring info
                 </button>
               </div>

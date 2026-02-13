@@ -83,6 +83,62 @@ function insertAtIndex<T>(arr: T[], item: T, toIndex: number): T[] {
   return a;
 }
 
+const RUDDER_ANON_KEY = 'rudder_anonymous_id';
+let cachedRudderAnonId: string | null = null;
+let rudderIdentified = false;
+
+function getRudderAnalytics(): any {
+  if (typeof window === 'undefined') return null;
+  return (window as any).rudderanalytics ?? null;
+}
+
+function getOrCreateRudderAnonId(): string | null {
+  if (cachedRudderAnonId) return cachedRudderAnonId;
+  if (typeof window === 'undefined') return null;
+  try {
+    const existing = window.localStorage.getItem(RUDDER_ANON_KEY);
+    if (existing) {
+      cachedRudderAnonId = existing;
+      return existing;
+    }
+    const id =
+      typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : `anon_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    window.localStorage.setItem(RUDDER_ANON_KEY, id);
+    cachedRudderAnonId = id;
+    return id;
+  } catch {
+    return null;
+  }
+}
+
+function ensureRudderIdentity(): string | null {
+  const anonId = getOrCreateRudderAnonId();
+  const analytics = getRudderAnalytics();
+  if (!anonId || !analytics) return anonId;
+  if (!rudderIdentified) {
+    if (typeof analytics.setAnonymousId === 'function') {
+      analytics.setAnonymousId(anonId);
+    }
+    if (typeof analytics.identify === 'function') {
+      analytics.identify(undefined, { anonymous: true }, { anonymousId: anonId });
+    }
+    rudderIdentified = true;
+  }
+  return anonId;
+}
+
+function trackRudderEvent(event: string, properties?: Record<string, unknown>) {
+  const analytics = getRudderAnalytics();
+  if (typeof analytics?.track !== 'function') return;
+  if (properties) {
+    analytics.track(event, properties);
+  } else {
+    analytics.track(event);
+  }
+}
+
 export default function App() {
   const [gameId, setGameId] = useState<string | null>(null);
   const [zones, setZones] = useState<Zones>({ hand: [], front: [], middle: [], back: [] });
@@ -118,6 +174,14 @@ export default function App() {
   }, [result]);
 
   useEffect(() => {
+    const anonId = ensureRudderIdentity();
+    const analytics = getRudderAnalytics();
+    const pageProps = anonId ? { anonymousId: anonId } : undefined;
+    if (typeof analytics?.page === 'function') {
+      analytics.page('Chinese Poker', pageProps);
+    } else {
+      trackRudderEvent('page_view', pageProps);
+    }
     if (!result || (!result.userFoul && !playerScoop)) {
       setShowOutcomeEffect(false);
       return;
@@ -313,6 +377,14 @@ export default function App() {
 
   async function onSubmit() {
     if (!gameId) return;
+    const anonId = ensureRudderIdentity();
+    trackRudderEvent('submit_hand', {
+      gameId,
+      frontCount: zones.front.length,
+      middleCount: zones.middle.length,
+      backCount: zones.back.length,
+      anonymousId: anonId ?? undefined
+    });
     setBusy(true);
     setError(null);
     setResult(null);

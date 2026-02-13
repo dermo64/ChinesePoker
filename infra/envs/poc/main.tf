@@ -192,6 +192,11 @@ locals {
           - POSTGRES_PASSWORD=password
           - POSTGRES_DB=jobsdb
         shm_size: 128mb
+        healthcheck:
+          test: ["CMD-SHELL", "pg_isready -U rudder -d jobsdb"]
+          interval: 5s
+          timeout: 5s
+          retries: 10
 
       d-transformer:
         image: rudderstack/rudder-transformer:latest
@@ -201,8 +206,10 @@ locals {
       backend:
         image: rudderlabs/rudder-server:latest
         depends_on:
-          - db
-          - d-transformer
+          db:
+            condition: service_healthy
+          d-transformer:
+            condition: service_started
         ports:
           - "8080:8080"
         environment:

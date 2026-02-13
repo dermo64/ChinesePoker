@@ -186,6 +186,7 @@ locals {
     services:
       db:
         image: postgres:15-alpine
+        restart: unless-stopped
         environment:
           - POSTGRES_USER=rudder
           - POSTGRES_PASSWORD=password
@@ -199,11 +200,13 @@ locals {
 
       d-transformer:
         image: rudderstack/rudder-transformer:latest
+        restart: unless-stopped
         ports:
           - "9090:9090"
 
       backend:
         image: rudderlabs/rudder-server:latest
+        restart: unless-stopped
         depends_on:
           db:
             condition: service_healthy
